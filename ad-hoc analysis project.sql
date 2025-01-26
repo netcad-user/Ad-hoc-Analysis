@@ -1,15 +1,12 @@
 -- -- Codebasics SQL portfolio project resume challenge 4 --
 
-# Provide the list of markets in which customer "Atliq Exclusive" operates its
-# business in the APAC region.
+--Request 1--
  select distinct market from dim_customer
  where customer ="Atliq Exclusive" and region = "APAC";
  
-# What is the percentage of unique product increase in 2021 vs. 2020? The
-# final output contains these fields
+--Request 2--
 
 WITH unique_products AS (
-    -- Get unique product count for 2020 and 2021
     SELECT 
         COUNT(DISTINCT CASE WHEN fiscal_year = 2020 THEN product_code END) AS unique_products_2020,
         COUNT(DISTINCT CASE WHEN fiscal_year = 2021 THEN product_code END) AS unique_products_2021
@@ -17,7 +14,7 @@ WITH unique_products AS (
         fact_sales_monthly
 )
 
--- Calculate percentage change
+
 SELECT 
     unique_products_2020,
     unique_products_2021,
@@ -25,18 +22,15 @@ SELECT
 FROM 
     unique_products;
     
-#Provide a report with all the unique product counts for each segment and
-#sort them in descending order of product counts. The final output contains
-#2 fields
+--Request 3--
 select distinct (segment), count(product) as product_count from dim_product
 group by segment
 order by product_count desc
 
-#Which segment had the most increase in unique products in
-#2021 vs 2020? The final output contains these fields;
+--Request 4--
 
 WITH unique_products_by_segment AS (
-    -- Get unique product counts by segment for 2020 and 2021
+    
     SELECT 
         dp.segment,
         COUNT(DISTINCT CASE WHEN fsm.fiscal_year = 2020 THEN fsm.product_code END) AS product_count_2020,
@@ -51,7 +45,7 @@ WITH unique_products_by_segment AS (
         dp.segment
 )
 
--- Calculate difference and get the segment with the most increase
+
 SELECT 
     segment,
     product_count_2020,
@@ -61,9 +55,7 @@ FROM
     unique_products_by_segment
 ORDER BY 
     difference DESC;
-#Get the products that have the highest and lowest manufacturing costs.
-#The final output should contain these fields
-
+--Request 5--
 SELECT
     dp.product_code,
     dp.product,
@@ -83,9 +75,7 @@ WHERE
         SELECT MIN(manufacturing_cost)
         FROM fact_manufacturing_cost
     );
-#Generate a report which contains the top 5 customers who received an
-#average high pre_invoice_discount_pct for the fiscal year 2021 and in the
-#Indian market.
+--Request 6--
 SELECT
     dc.customer_code,
     dc.customer,
@@ -103,12 +93,7 @@ ORDER BY
     average_discount_percentage DESC
 LIMIT 5;
 
-#Get the complete report of the Gross sales amount for the customer “Atliq
-#Exclusive” for each month. This analysis helps to get an idea of low and
-#high-performing months and take strategic decisions.
-#The final report contains these columns:Month
-#Year
-#Gross sales Amount
+--Request 7--
 
 SELECT 
     MONTH(fsm.date) AS Month,
@@ -168,21 +153,17 @@ ORDER BY
 
 
 
-#In which quarter of 2020, got the maximum total_sold_quantity? The final
-#output contains these fields sorted by the total_sold_quantity,
-#Quarter
-#total_sold_quantity
-
+-- Request 8--
 WITH SalesWithQuarter AS (
     SELECT 
         CASE 
-            -- Fiscal Q1: September to November (09 to 11 of the previous year)
+            
             WHEN MONTH(date) IN (9, 10, 11) THEN 'Q1'
-            -- Fiscal Q2: December to February (12 of previous year to 02 of current year)
+            
             WHEN MONTH(date) IN (12, 1, 2) THEN 'Q2'
-            -- Fiscal Q3: March to May (03 to 05 of current year)
+            
             WHEN MONTH(date) IN (3, 4, 5) THEN 'Q3'
-            -- Fiscal Q4: June to August (06 to 08 of current year)
+            
             WHEN MONTH(date) IN (6, 7, 8) THEN 'Q4'
         END AS Quarter,
         sold_quantity
@@ -202,11 +183,7 @@ GROUP BY
 ORDER BY 
     total_sold_quantity DESC;
     
-#Which channel helped to bring more gross sales in the fiscal year 2021
-#and the percentage of contribution? The final output contains these fields,
-#channel
-#gross_sales_mln
-#percentage
+--Request 9--
 
 WITH ChannelSales AS (
     SELECT 
@@ -240,14 +217,7 @@ FROM
 ORDER BY 
     cs.gross_sales_mln DESC;
     
-#Get the Top 3 products in each division that have a high
-#total_sold_quantity in the fiscal_year 2021? The final output contains these
-#fields,
-#division
-#product_code
-#product
-#total_sold_quantity
-#rank_order
+--- Request 10 --
 
 WITH ProductSales AS (
     SELECT 
